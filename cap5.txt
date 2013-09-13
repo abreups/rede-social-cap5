@@ -1,0 +1,237 @@
+Construindo um Hello World do simples ao elaborado
+
+Iniciaremos com um "Hello World" bem simples e iremos introduzindo
+os componentes de Jade, Backbone, Express até chegar nos módulos
+como estão no capiítlo 5 do livro "Construindo Aplicações
+Node com MongoDB e Backbone".
+
+
+Passo 0: html básico
+
+Um arquivo em html puro e simples que faz o mesmo serviço que 
+o resultado de todo o código do capítulo 5 seria:
+
+<inserir código de HelloWorld1.html>
+
+Digite esse código html em um editor de texto, salve no disco
+com o nome 'HelloWorld1.html' e abra em
+um navegador qualquer para obter o texto "Hello, World!" na 
+janela do navegador.
+
+
+Passo 1: node.js
+
+Vamos então ao Passo 1: como fazer o node.js produzir esse mesmo
+resultado, ou seja, não queremos abrir o arquivo usando os menus
+do navegador (como 'Arquivo... Abrir Arquivo' no Firefox). Queremos
+apontar o navegar para uma URL e ter o arquivo "servido" ao nosso
+navegador.
+
+Para isso precisamos fazer o node.js "servir" esse código html, e apontaremos
+nosso navegador para, por exemplo, 'http://localhost:8080'.
+
+O código "mais simples" para fazer o node.js produzir uma saída
+seria:
+
+<inserir código de app1.js>
+
+Esse código foi adaptado do exemplo fornecido na homepage
+do projeto node.js (http://nodejs.org).
+
+Digite esse código em um editor de texto, salve no arquivo
+chamado 'app1.js' e execute o comando: 'node app1.js' na 
+linha de comando. Então, abra seu navegador e digite a
+URL 'http://localhost:8080' (ou 'http://127.0.0.1:8080'
+que dá na mesma).
+
+OK, bacana; mas não queremos colocar o código html da nossa página
+dentro do código de app1.js (que é o que estamos "simulando"
+com a linha 'res.end('Hello, World!')'. Queremos que app1.js sirva o
+código html de um arquivo externo, tal como nosso arquivo 
+'HelloWorld1.html'.
+
+Para isso, temos que usar alguma função que leia o arquivo que
+contém o código html, colocando esse conteúdo em uma variável
+e usando essa variável na chamada de 'res.end(...)', assim:
+
+<inserir código de app2.js>
+
+Esse código foi adaptado do exemplo fornecido em
+http://stackoverflow.com/questions/6084360/node-js-as-a-simple-web-server
+
+Altere o arquivo 'app1.js', salve com o nome de app2.js e execute o comando: 
+'node app2.js' na linha de comando. Então, abra seu navegador e digite a
+URL 'http://localhost:8080'.
+
+Nota: a chamada de função fs.readFileSync(...) é do tipo "blocking",
+ou seja, o programa fica esperando a função terminar ( o arquivo
+ser lido) antes de seguir em frente. Em princípio você deveria
+evitar funções "blocking" e usar apenas técnicas assíncronas
+(que são "non-blocking") através de "callback functions".
+OK, OK, mas por enquanto vamos ficar assim mesmo porque isso vai
+acabar desaparecendo mais pra frente então não vamos complicar agora.
+
+
+Passo 2: Express
+
+Do jeito que está, nosso "servidor web" só consegue servir um único
+documento. E se quiséssemos ter vários documentos html distintos
+que seriam acessados com uma URL mais específica. Por exemplo,
+e se quiséssemos que a homepage do site fosse acessada por 
+'http://localhost:8080/' e uma descrição sobre o site fosse acessível
+por 'http://localhost:8080/about'. Então, do jeito que está não
+dá, pois qualquer acesso vai sempre voltar o documento
+HelloWorld1.html.
+
+Uma maneira bastante popular de acrescentar essa funcionalidade que
+desejamos é usar o módulo Express para o Node.
+O Express tem um monte de funcionalidades mas vou explicar apenas 
+algumas coisas básicas para que possamos entender como ele está 
+sendo usado no capítulo 5 do livro.
+
+Pra começar, vamos reescrever app2.js (renomeando o arquivo
+para app3.js) para fazer a mesma coisa só que usando Express.
+
+A primeira coisa a fazer é carregar o módulo do Express, assim:
+
+var express = require('express');
+var app = express();
+
+Agora nós vamos dividir a chamada 
+'http.createServer (....).listen(...)'
+em duas partes:
+
+a. uma parte que vai ficar "escutando" chamadas na porta 8080;
+b. e outra parte que vai responder às chamadas servindo uma página html;
+
+Note que no nosso código atual essas duas funções são meio que feitas
+ao mesmo tempo; a resposta a uma chamada na porta 8080 é a devolução
+do arquivo html. O motivo de quebrarmos em duas partes é, bem ...,
+"porque o Express faz assim".
+
+A parte que escuta a porta 8080 é simplesmente:
+
+app.listen(8080);
+
+E a parte que responde usa o método 'get' do Express:
+
+app.get('/', function(req, res) {
+	res.end(hello);
+});
+
+O que esse código está dizendo é o seguinte:
+a. quando o navegador solicitar uma página no diretório raiz '/' do site;
+b. devolva a página carregada na variável 'hello'.
+
+O código final do arquivo app3.js fica assim:
+
+<inserir código do arquivo app3.js>
+
+Com o arquivo app3.js salvo em disco, execute 'node app3.js' na linha de
+comando, abra seu navegador e digite a URL 'http://localhost:8080'.
+
+Note que várias linhas estão excluídas colocando-as como comentário.
+Uma delas é logo a primeira que carregava o módulo 'http'. Não 
+precisamos mais usar esse módulo diretamente pois o Express oferece
+as funcionalidades de http server que precisamos.
+Você pode simplesmente apagar as linhas e o seu código vai ficar mais
+enxuto, assim:
+
+<incluir código de app4.js>
+
+Pra você ver algumas das vantagens que o Express oferece sem que tenhamos
+que fazer nada, abra a seguinte URL no navegador:
+http://localhost:8080/teste
+
+Note que o navegador mostra algo do tipo "Cannot GET /teste".
+
+Se você se lembra, antes de usarmos o Express, qualquer página sempre
+voltava com o mesmo conteúdo. Agora não, somente o acesso a '/'
+retorna nosso documento. Acesso a outras URLs retornam uma mensagem
+"de erro".
+
+Se quiser brincar de Express, experimente acrescentar as seguinte linhas 
+de código e depois teste com seu navegador:
+
+app.get('/teste', function(req, res) {
+	res.end('Voce acessou teste');
+});
+
+Mas isso não faz parte do capítulo 5 do livro, portanto vamos deixar de 
+fora do nosso código por enquanto.
+
+
+
+
+
+
+
+
+
+Passo 2: Jade
+
+O propósito mais simples do Jade é simplificar a criação de documentos html.
+Obviamente que o "pulo do gato" é criar documentos html de forma dinâmica,
+como parte de um programa em execução.
+
+Um exemplo bem básico do uso do Jade é o seguinte:
+1. crie um arquivo chamado teste.jade com esse conteúdo
+(atenção com o espaçamento. Use tab):
+
+html
+	body
+		p.
+			Mundo, mundo, vasto mundo.
+
+2. execute na linha de comando:
+jade teste.jade
+
+3. abra no editor de texto o arquivo gerado: teste.html
+
+4. abra no navegador o arquivo teste.html
+
+Percebeu o que o Jade fez? Ele gerou os markups html a partir
+de instruções bem mais simples.
+Exemplo: 'body' virou '<body> ... </body>'
+
+A homepage do projeto Jade é bem autoexplicativa.
+http://jade-lang.com/tutorial/
+
+o que vamos fazer então é escrever um arquivo .jade que gere o que 
+por enquanto é nosso arquivo HelloWorld.html.
+
+Como nosso arquivo HelloWorld1.html é realmente bem simples, a 
+equivalência com Jade não é difícil:
+
+<html>...</html> --> html
+<head>...</head> --> head
+<body>...</body> --> body
+<title>...</title> --> title
+
+e para criar um div que tem um id chamado 'content' é só fazer:
+div#content
+
+Nosso arquivo HelloWorld2.jade fica então assim:
+
+<inserir código de HelloWorld2.jade>
+
+Nota: as duas primeiras linhas do arquivo ficam como exercício
+para você "entender" (vai, é fácil).
+
+A título de experiência, faça o Jade converter esse arquivo em 
+uma versão em html com a seguinte linha de comando:
+jade HelloWorld2.jade
+
+Abra o resultado (o arquivo renderizado HelloWorld2.html)
+em um editor de texto e depois abra no navegador.
+Note que o arquivo em html não está indentado, o que facilitaria
+sua leitura por nós humanos, mas é perfeitamente entendido pelo
+navegador.
+
+Veja que nosso arquivo HelloWorld2.jade ficou muito parecido
+com o arquivo index.jade no Exemplo 5.3 do livro!
+
+
+
+
+
