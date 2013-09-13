@@ -1,3 +1,9 @@
+Introdução:
+
+Assume-se que você está trabalhando um uma máquina Linux (como Ubuntu)
+e que você já sabe instalar o node.js e sabe instalar módulos
+com o comando npm.
+
 Construindo um Hello World do simples ao elaborado
 
 Iniciaremos com um "Hello World" bem simples e iremos introduzindo
@@ -11,7 +17,19 @@ Passo 0: html básico
 Um arquivo em html puro e simples que faz o mesmo serviço que 
 o resultado de todo o código do capítulo 5 seria:
 
-<inserir código de HelloWorld1.html>
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<title>
+				Social Network
+			</title>
+		</head>
+		<body>
+			<div id="content">Hello, World!</div>
+		</body>
+	</html>
+
+					Arquivo: HelloWorld1.html
 
 Digite esse código html em um editor de texto, salve no disco
 com o nome 'HelloWorld1.html' e abra em
@@ -33,7 +51,14 @@ nosso navegador para, por exemplo, 'http://localhost:8080'.
 O código "mais simples" para fazer o node.js produzir uma saída
 seria:
 
-<inserir código de app1.js>
+	var http = require('http');
+	http.createServer(function (req, res) {
+		  res.writeHead(200, {'Content-Type': 'text/html'});
+			res.end('Hello, World!');
+	}).listen(8080, '127.0.0.1');
+	console.log('Servidor escutando em http://127.0.0.1:8080/');
+
+						Arquivo: app1.js
 
 Esse código foi adaptado do exemplo fornecido na homepage
 do projeto node.js (http://nodejs.org).
@@ -45,26 +70,35 @@ URL 'http://localhost:8080' (ou 'http://127.0.0.1:8080'
 que dá na mesma).
 
 OK, bacana; mas não queremos colocar o código html da nossa página
-dentro do código de app1.js (que é o que estamos "simulando"
-com a linha 'res.end('Hello, World!')'. Queremos que app1.js sirva o
+dentro do código de app1.js (que é o que estamos fazendo
+com a linha "res.end('Hello, World!')". Queremos que app1.js sirva o
 código html de um arquivo externo, tal como nosso arquivo 
 'HelloWorld1.html'.
 
 Para isso, temos que usar alguma função que leia o arquivo que
 contém o código html, colocando esse conteúdo em uma variável
-e usando essa variável na chamada de 'res.end(...)', assim:
+e usando essa variável na chamada de "res.end(...)", assim:
 
-<inserir código de app2.js>
+	var http = require('http');
+	var fs = require('fs'); // para ler arquivos
+	var hello = fs.readFileSync('HelloWorld1.html'); // lê o arquivo
+	http.createServer(function (req, res) {
+		res.writeHead(200, {'Content-Type': 'text/html'});
+		res.end(hello); // serve o conteúdo do arquivo html lido
+	}).listen(8080, '127.0.0.1');
+	console.log('Servidor escutando em http://127.0.0.1:8080/');
+
+						Arquivo: app2.js
 
 Esse código foi adaptado do exemplo fornecido em
 http://stackoverflow.com/questions/6084360/node-js-as-a-simple-web-server
 
-Altere o arquivo 'app1.js', salve com o nome de app2.js e execute o comando: 
-'node app2.js' na linha de comando. Então, abra seu navegador e digite a
-URL 'http://localhost:8080'.
+Altere o arquivo 'app1.js' para que fique como o código acima,
+salve com o nome de app2.js e execute o comando: "node app2.js" na linha de comando.
+Então, abra seu navegador e digite a URL 'http://localhost:8080'.
 
 Nota: a chamada de função fs.readFileSync(...) é do tipo "blocking",
-ou seja, o programa fica esperando a função terminar ( o arquivo
+ou seja, o programa fica esperando a função terminar (o arquivo
 ser lido) antes de seguir em frente. Em princípio você deveria
 evitar funções "blocking" e usar apenas técnicas assíncronas
 (que são "non-blocking") através de "callback functions".
@@ -94,11 +128,10 @@ para app3.js) para fazer a mesma coisa só que usando Express.
 
 A primeira coisa a fazer é carregar o módulo do Express, assim:
 
-var express = require('express');
-var app = express();
+	var express = require('express');
+	var app = express();
 
-Agora nós vamos dividir a chamada 
-'http.createServer (....).listen(...)'
+Agora nós vamos dividir a chamada "http.createServer (....).listen(...)"
 em duas partes:
 
 a. uma parte que vai ficar "escutando" chamadas na porta 8080;
@@ -106,26 +139,42 @@ b. e outra parte que vai responder às chamadas servindo uma página html;
 
 Note que no nosso código atual essas duas funções são meio que feitas
 ao mesmo tempo; a resposta a uma chamada na porta 8080 é a devolução
-do arquivo html. O motivo de quebrarmos em duas partes é, bem ...,
-"porque o Express faz assim".
+do arquivo html. O motivo de quebrarmos em duas partes é, bem ..., sei lá.
 
 A parte que escuta a porta 8080 é simplesmente:
 
-app.listen(8080);
+	app.listen(8080);
 
 E a parte que responde usa o método 'get' do Express:
 
-app.get('/', function(req, res) {
-	res.end(hello);
-});
+	app.get('/', function(req, res) {
+		res.end(hello);
+	});
 
-O que esse código está dizendo é o seguinte:
-a. quando o navegador solicitar uma página no diretório raiz '/' do site;
-b. devolva a página carregada na variável 'hello'.
+O que esse código está dizendo é o seguinte: quando o navegador solicitar 
+uma página no diretório raiz '/' do site, devolva a página carregada na 
+variável "hello".
 
 O código final do arquivo app3.js fica assim:
 
-<inserir código do arquivo app3.js>
+	// var http = require('http');
+	var fs = require('fs'); // para ler arquivos
+	var express = require('express'); // carrega o módulo Express
+	var app = express(); // cria uma instância do express
+	var hello = fs.readFileSync('HelloWorld1.html'); // lê o arquivo
+	/*
+	http.createServer(function (req, res) {
+		res.writeHead(200, {'Content-Type': 'text/html'});
+		res.end(hello); // serve o conteúdo do arquivo html lido
+	}).listen(8080, '127.0.0.1');
+	*/
+	app.listen(8080); // fica escutando na porta 8080
+	app.get('/', function(req, res) {
+		res.end(hello); // responde qdo navegador pede diretório raiz
+	});
+	console.log('Servidor escutando em http://127.0.0.1:8080/');
+
+						Arquivo: app3.js
 
 Com o arquivo app3.js salvo em disco, execute 'node app3.js' na linha de
 comando, abra seu navegador e digite a URL 'http://localhost:8080'.
@@ -137,7 +186,17 @@ as funcionalidades de http server que precisamos.
 Você pode simplesmente apagar as linhas e o seu código vai ficar mais
 enxuto, assim:
 
-<incluir código de app4.js>
+	var fs = require('fs'); // para ler arquivos
+	var express = require('express'); // carrega o módulo Express
+	var app = express(); // cria uma instância do express
+	var hello = fs.readFileSync('HelloWorld1.html'); // lê o arquivo
+	app.listen(8080); // fica escutando na porta 8080
+	app.get('/', function(req, res) {
+		res.end(hello); // responde qdo navegador pede diretório raiz
+	});
+	console.log('Servidor escutando em http://127.0.0.1:8080/');
+
+						Arquivo: app4.js
 
 Pra você ver algumas das vantagens que o Express oferece sem que tenhamos
 que fazer nada, abra a seguinte URL no navegador:
