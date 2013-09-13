@@ -178,12 +178,16 @@ O código final do arquivo app3.js fica assim:
 
 Com o arquivo app3.js salvo em disco, execute 'node app3.js' na linha de
 comando, abra seu navegador e digite a URL 'http://localhost:8080'.
+Você verá a frase "Hello, World!" na janela do navegador indicando que
+tudo ainda funciona.
 
 Note que várias linhas estão excluídas colocando-as como comentário.
 Uma delas é logo a primeira que carregava o módulo 'http'. Não 
 precisamos mais usar esse módulo diretamente pois o Express oferece
-as funcionalidades de http server que precisamos.
-Você pode simplesmente apagar as linhas e o seu código vai ficar mais
+as funcionalidades de http server que precisamos (a linha 
+"app.listen(...)" está fazendo isso).
+
+Você pode simplesmente apagar as linhas comentadas e o seu código vai ficar mais
 enxuto, assim:
 
 	var fs = require('fs'); // para ler arquivos
@@ -207,24 +211,29 @@ Note que o navegador mostra algo do tipo "Cannot GET /teste".
 Se você se lembra, antes de usarmos o Express, qualquer página sempre
 voltava com o mesmo conteúdo. Agora não, somente o acesso a '/'
 retorna nosso documento. Acesso a outras URLs retornam uma mensagem
-"de erro".
+"de erro". Execute "node app1.js", tente acessar a URL 
+http://localhost:8080/teste e veja você mesmo.
 
 Se quiser brincar de Express, experimente acrescentar as seguinte linhas 
-de código e depois teste com seu navegador:
+de código imediatamente antes da linha "console.log(...)" e depois teste 
+com seu navegador a URL "http://localhost:8080/teste".
 
-app.get('/teste', function(req, res) {
-	res.end('Voce acessou teste');
-});
+	app.get('/teste', function(req, res) {
+		res.end('Voce acessou teste');
+	});
 
 Mas isso não faz parte do capítulo 5 do livro, portanto vamos deixar de 
 fora do nosso código por enquanto.
 
+Mas vale aqui um comentário sobre essa funcionalidade: chama-se "rotas". 
+É uma das grandes utilizações do Express. O "get" em "app.get()" é 
+referência direta ao verbo "GET" do protocolo HTTP. Da mesma forma,
+O Express implementa vários outros verbos do protocolo HTTP, tais como
+POST, PUT, etc. 
+Uma excelente referência para aprender Express é o livro "Express Web
+Application Development", escrito por Hage Yaapa. Vale a pena.
 
-
-
-
-
-
+Vamos então à segunda funcionalidade do Express.
 
 
 Passo 2: Jade
@@ -234,13 +243,16 @@ Obviamente que o "pulo do gato" é criar documentos html de forma dinâmica,
 como parte de um programa em execução.
 
 Um exemplo bem básico do uso do Jade é o seguinte:
+
 1. crie um arquivo chamado teste.jade com esse conteúdo
 (atenção com o espaçamento. Use tab):
 
-html
-	body
-		p.
-			Mundo, mundo, vasto mundo.
+	html
+		body
+			p.
+				Mundo, mundo, vasto mundo.
+
+						Arquivo: teste.jade
 
 2. execute na linha de comando:
 jade teste.jade
@@ -256,8 +268,8 @@ Exemplo: 'body' virou '<body> ... </body>'
 A homepage do projeto Jade é bem autoexplicativa.
 http://jade-lang.com/tutorial/
 
-o que vamos fazer então é escrever um arquivo .jade que gere o que 
-por enquanto é nosso arquivo HelloWorld.html.
+O que vamos fazer então é escrever um arquivo .jade que gere o que 
+por enquanto é nosso arquivo HelloWorld1.html.
 
 Como nosso arquivo HelloWorld1.html é realmente bem simples, a 
 equivalência com Jade não é difícil:
@@ -272,7 +284,14 @@ div#content
 
 Nosso arquivo HelloWorld2.jade fica então assim:
 
-<inserir código de HelloWorld2.jade>
+	!!! 5
+	html(lang="en")
+		head
+			title Social Network
+		body
+			div#content Hello, World!
+
+						Arquivo: HelloWorld2.jade
 
 Nota: as duas primeiras linhas do arquivo ficam como exercício
 para você "entender" (vai, é fácil).
@@ -290,7 +309,8 @@ navegador.
 Veja que nosso arquivo HelloWorld2.jade ficou muito parecido
 com o arquivo index.jade no Exemplo 5.3 do livro!
 
-
+OK; se você entendeu o que o Jade faz o próximo passo é fazer o 
+Express e o Jade trabalharem juntos. Para isso, 
 
 
 
