@@ -223,7 +223,24 @@ com seu navegador a URL "http://localhost:8080/teste".
 	});
 
 Mas isso não faz parte do capítulo 5 do livro, portanto vamos deixar de 
-fora do nosso código por enquanto.
+fora do nosso código por enquanto. Mas aqui vai o código completo do 
+arquivo pra você não ficar com dúvidas:
+
+	var fs = require('fs'); // para ler arquivos
+	var express = require('express'); // carrega o módulo Express
+	var app = express(); // cria uma instância do express
+	var hello = fs.readFileSync('HelloWorld1.html'); // lê o arquivo
+	app.listen(8080); // fica escutando na porta 8080
+	app.get('/', function(req, res) {
+		res.end(hello); // responde qdo navegador pede diretório raiz
+	});
+	app.get('/teste', function(req, res) {
+		res.end('Voce acessou teste');
+	});
+	console.log('Servidor escutando em http://127.0.0.1:8080/');
+
+						Arquivo: app5.js
+
 
 Mas vale aqui um comentário sobre essa funcionalidade: chama-se "rotas". 
 É uma das grandes utilizações do Express. O "get" em "app.get()" é 
@@ -231,7 +248,8 @@ referência direta ao verbo "GET" do protocolo HTTP. Da mesma forma,
 O Express implementa vários outros verbos do protocolo HTTP, tais como
 POST, PUT, etc. 
 Uma excelente referência para aprender Express é o livro "Express Web
-Application Development", escrito por Hage Yaapa. Vale a pena.
+Application Development", escrito por Hage Yaapa. Vale a pena, e foi
+lá que eu aprendi tudo isso.
 
 Vamos então à segunda funcionalidade do Express.
 
@@ -263,7 +281,7 @@ jade teste.jade
 
 Percebeu o que o Jade fez? Ele gerou os markups html a partir
 de instruções bem mais simples.
-Exemplo: 'body' virou '<body> ... </body>'
+Exemplo: "body" virou "<body> ... </body>"
 
 A homepage do projeto Jade é bem autoexplicativa.
 http://jade-lang.com/tutorial/
@@ -274,13 +292,13 @@ por enquanto é nosso arquivo HelloWorld1.html.
 Como nosso arquivo HelloWorld1.html é realmente bem simples, a 
 equivalência com Jade não é difícil:
 
-<html>...</html> --> html
-<head>...</head> --> head
-<body>...</body> --> body
-<title>...</title> --> title
+"<html>...</html>" --> html
+"<head>...</head>" --> head
+"<body>...</body>" --> body
+"<title>...</title>" --> title
 
 e para criar um div que tem um id chamado 'content' é só fazer:
-div#content
+"div#content".
 
 Nosso arquivo HelloWorld2.jade fica então assim:
 
@@ -309,8 +327,129 @@ navegador.
 Veja que nosso arquivo HelloWorld2.jade ficou muito parecido
 com o arquivo index.jade no Exemplo 5.3 do livro!
 
-OK; se você entendeu o que o Jade faz o próximo passo é fazer o 
-Express e o Jade trabalharem juntos. Para isso, 
+OK; se você entendeu o que o Jade, faz o próximo passo é fazer o 
+Express e o Jade trabalharem juntos. 
 
+Para isso, precisamos primeiro
+dizer ao Express que ele vai trabalhar com o Jade (isso porque
+o Express também trabalha com outras ferramentas parecidas com 
+o Jade, tais como o 'ejs' ou o 'hogan').
+A linha de comando que ajusta o Express para trabalhar com Jade é:
+
+	app.set('view engine', 'jade');
+
+Você pode ler essa linha de comando da seguinte forma: "setar a 
+variável chamada 'view engine' com o valor 'jade'".
+Essa variável é usada pelo Jade para saber qual a máquina de
+renderização de HTML que vai ser usada.
+
+E por falar em renderização, para renderizar uma página HTML
+a partir de um arquivo em Jade, usamos o comando:
+
+	app.render("nomeDaPagina.jade");
+
+Só falta um detalhe, mas vamos ver isso daqui a pouco.
+Então vamos modificar o arquivo app5.js, incluindo essas 2 linhas
+e vamos usar o arquivo HelloWorld2.jade que criamos acima para
+renderizar nossa página HTML.
+
+Dessa forma, nosso arquivo app5.js fica assim (agora como app6.js):
+
+	// var fs = require('fs'); // para ler arquivos
+	var express = require('express'); // carrega o módulo Express
+	var app = express(); // cria uma instância do express
+	// var hello = fs.readFileSync('HelloWorld1.html'); // lê o arquivo
+	app.set('view engine', 'jade'); // ajusta engine de renderização para jade
+	app.listen(8080); // fica escutando na porta 8080
+	app.get('/', function(req, res) {
+		res.render('HelloWorld2.jade'); // responde qdo navegador pede diretório raiz
+	});
+	// app.get('/teste', function(req, res) {
+	// 	res.end('Voce acessou teste');
+	// });
+	console.log('Servidor escutando em http://127.0.0.1:8080/');
+
+						Arquivo: app6.js
+
+Se você tentar executar esse arquivo com 'node app6' 
+você vai receber uma mensagem de erro. Tente e veja.
+
+E por quê? Dê uma olhada no seu diretório 'node modules'. Tá vendo
+um sub-diretório chamado jade? Não? Então; é isso. Falta instalar o
+Jade! Vamos lá:
+
+	npm install jade
+
+Olha lá de novo e... pronto.
+Agora roda 'node app6' outra vez.
+
+	node app6
+
+Putz! Erro de novo?
+Então, o detalhe que eu deixei passar logo antes é que temos que
+dizer ao Express onde estão os arquivos '.jade' que serão renderizados.
+O livro não usa o comando que eu vou mostrar agora porque o livro usa
+o RequireJS para fazer isso. Vamos falar do RequireJS mais adiante, mas
+para ficarmos com uma versão funcional do programa vamos usar:
+
+	app.set('views', '.');
+
+Leia essa linha de comando da seguinte forma: "Express, a variável
+'views' agora tem o valor de 'diretório raiz' (ou seja, o mesmo
+diretório onde o arquivo app6.js está)".
+
+Acrescente essa linha em app6.js (que agora vai se chamar app7.js):
+
+	// var fs = require('fs'); // para ler arquivos
+	var express = require('express'); // carrega o módulo Express
+	var app = express(); // cria uma instância do express
+	// var hello = fs.readFileSync('HelloWorld1.html'); // lê o arquivo
+	app.set('view engine', 'jade'); // ajusta engine de renderização para jade
+	app.set('views', '.'); // local onde os arquivos .jade estão
+	app.listen(8080); // fica escutando na porta 8080
+	app.get('/', function(req, res) {
+		res.render('HelloWorld2.jade'); // responde qdo navegador pede diretório raiz
+	});
+	// app.get('/teste', function(req, res) {
+	// 	res.end('Voce acessou teste');
+	// });
+	console.log('Servidor escutando em http://127.0.0.1:8080/');
+
+						Arquivo: app7.js
+
+Rode então o programa com:
+
+	node app7
+
+Aponte o navegador para http://localhost:8080 e veja que nossa mensagem
+de Hello world está lá.
+
+Como você pode imaginar, é possível colocar os arquivos .jade em outro
+diretório, e isso é provavelmente o que você gostaria de fazer à medida
+que sua aplicação vai crescendo e a quantidade de arquivos vai crescendo
+também. Criar uma estrutura de sub-diretórios para organizar onde
+ficam os arquivos jade, onde ficam as imagens, etc é altamente
+recomendável. No livro, os arquivos jade ficam num diretório
+chamado 'views' dentro do diretório raiz. Vamos então criar esse
+diretório, mover o arquivo HellowWorld2.jade para lá e acertar o código.
+
+Árvore de diretório:
+
+.			: aqui ficam todos os appx.js que já criamos
+./views		: aqui colocamos os arquivos .jade
+
+E o novo app8.js fica assim (já removendo as linhas comentadas):
+
+	var express = require('express'); // carrega o módulo Express
+	var app = express(); // cria uma instância do express
+	app.set('view engine', 'jade'); // ajusta engine de renderização para jade
+	app.set('views', './views'); // local onde os arquivos .jade estão
+	app.listen(8080); // fica escutando na porta 8080
+	app.get('/', function(req, res) {
+		res.render('HelloWorld2.jade'); // responde qdo navegador pede diretório raiz
+	});
+	console.log('Servidor escutando em http://127.0.0.1:8080/');
+
+						Arquivo: app8.js
 
 
