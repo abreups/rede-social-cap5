@@ -254,7 +254,7 @@ lá que eu aprendi tudo isso.
 Vamos então à segunda funcionalidade do Express.
 
 
-Passo 2: Jade
+Passo 3: Jade
 
 O propósito mais simples do Jade é simplificar a criação de documentos html.
 Obviamente que o "pulo do gato" é criar documentos html de forma dinâmica,
@@ -451,5 +451,10 @@ E o novo app8.js fica assim (já removendo as linhas comentadas):
 	console.log('Servidor escutando em http://127.0.0.1:8080/');
 
 						Arquivo: app8.js
+
+Compare esse código com o do Exemplo 5.2 do livro e veja que estamos
+quase lá.
+
+Passo 4: Require JS
 
 
