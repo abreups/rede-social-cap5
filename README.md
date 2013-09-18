@@ -455,6 +455,184 @@ E o novo app8.js fica assim (já removendo as linhas comentadas):
 Compare esse código com o do Exemplo 5.2 do livro e veja que estamos
 quase lá.
 
+
 Passo 4: Require JS
+
+Nossa aplicação de Rede Social vai muito bem, obrigado, mas ninguém
+vai chamar uma aplicação de "Rede Social" que apenas escreve "Hello
+World" na janela do navegador, certo? O que queremos é possibilitar
+que esse Hello World vá se expandindo para um verdadeiro programa
+em JavaScript.
+
+Para isso precisaremos de "código em Javascript", e a maneira
+mais óbvia de se incluir código Javascript numa página html
+é usar a tag <script>. Algo assim:
+
+	<script type='text/javascript' src='xyz.js'></script>
+
+Se colocarmos essa linha na seção <head> do código html, então
+o programa em Javascript chamado xyz.js vai ser carregado (e executado)
+logo quando a página html começa a ser carregada pelo navegador.
+
+Ora, nossa aplicação de Rede Social poderia ser feita dessa forma.
+Provavelmente teríamos uma código gigante em xyz.js e tudo resolvido.
+Mas é exatamente a parte do "código gigante" que queremos evitar.
+Primeiro que dar manutenção em um programa com centenas de linhas
+no mesmo arquivo é terrível; dificulta o trabalho de um grupo
+de programadores, por exemplo.
+E se resolvermos subdividir nosso código em vários módulos, por exemplo:
+
+	<script type='text/javascript' src='modulo1.js'></script>
+	<script type='text/javascript' src='modulo2.js'></script>
+	<script type='text/javascript' src='etc.js'></script>
+
+começamos a entrar na questão de em que ordem os módulos têm que ser
+carregados, se precisamos de todos eles carregados agora ou se podemos
+carregar alguns apenas quando necessário (e como gerenciar isso), etc.
+
+É nesse ponto que entra o RequireJS. Ele faz todo esse controle de
+carregar quais módulos em que momento pra você.
+
+Então, o único módulo que vamos carregar na nossa página inicial
+vai ser justamente o RequireJS. A linha do tag <script> fica assim:
+
+	<script type='text/javascript' src='require.js'></script>
+
+Tá, mas o RequireJS não é o nosso programa de Rede Social. Como é
+que dizemos ao Require que ele carregue nosso programa?
+
+Muito bem, suponha então que nosso maravilhoso programa de Rede Social
+vai começar com um arquivo chamado 'boot.js' (não criamos esse arquivo
+ainda, calma).
+
+Para dizer ao require que ele carregue esse módulo (ou programa, como
+eu muito informalmente também o denomino) usamos um atributo para
+a tag <script> chamado 'data-main'. Nossa linha de tag <script>
+fica agora assim:
+
+	<script data-main='boot' type='text/javascript' src='require.js'></script>
+
+Note que, por convenção, não colocamos a extensão '.js' depois de 'boot'.
+Essa linha então, quando interpretada pelo navegador, vai carregar o 
+programa em Javascript chamado 'require.js' e este, por sua vez, depois
+de carregado, vai carregar e executar o programa em Javascript chamado
+'boot.js'.
+
+Do jeito que a linha do <script> está escrita, tanto o arquivo
+require.js como o arquivo boot.js tem que estar no mesmo diretório
+do programa app8.js (que é o programa que começou a rodar primeiro).
+
+Bem, da mesma forma que não queríamos ter um arquivo gigante com um
+monte de código dentro dele, também não queremos ter um diretório
+apenas com todos os arquivos da nossa aplicação. Vai ficar uma bagunça
+encontrar as coisas; e foi pra isso que sub-diretórios foram criados,
+certo?
+
+Já havíamos criado um diretório só pra colocar os arquivos Jade
+(chamado /views).
+
+A estrutura de sub-diretórios proposta pelo livro é criar um
+sub-diretório (ou pasta) chamada 'public' e debaixo dela colocar
+tudo que possa (e deva) estar disponível para download pelo
+cliente.
+Para que a pasta 'public' não se torne ela mesma uma bagunça,
+o autor divide um pouco mais a coisa e cria uma sub-pasta 'js'
+para colocar tudo que tem a ver com Javascript.
+E como código em Javascript virá de duas grandes fontes -- você,
+o programador e os módulos prontos tais como o RequireJS -- criamos
+uma outra sub-pasta só para as bibliotecas de terceiros (os tais
+módulos prontos).
+Essa "organização" fica assim então:
+
+	/ : diretório raiz onde está app8.js
+	|
+	+-- public : daqui pra baixo tudo é acessível ao cliente
+		  |
+		  + - - js : nossos próprios arquivos JavaScript
+				|
+				+-- libs : bibliotecas de terceiros
+
+Atenção: crie então essas pastas no seu computador e coloque os
+arquivos em questão lá, assim:
+
+public : aqui ainda não tem nenhum arquivo
+public/js : aqui vai ficar o boot.js
+public/js/libs : baixe o require.js e coloque aqui!
+
+Baixe o require.js do site: http://requirejs.org
+Na data em que escrevo esse texto a versão era a 2.1.8 e o link 
+completo para baixar a versão "minified" (ou seja, enxuta, sem 
+comentários) era: http://requirejs.org/docs/release/2.1.8/minified/require.js
+
+Muito bem, se você está seguindo o raciocínio até agora, então 
+tem um ajuste que temos que fazer na linha da tag <script>, que
+ainda está assim:
+
+	<script data-main='boot' type='text/javascript' src='require.js'></script>
+
+E qual  ajuste seria esse?
+Bem, depois dessa mexida toda com pastas e sub-pastas, nem o arquivo
+'boot.js' nem o 'require.js' estão no mesmo diretório que 'app8.js'.
+A linha correta seria essa:
+
+	<script data-main='/public/js/boot' type='text/javascript' src='/public/js/libs/require.js'></script>
+
+E onde colocamos essa linha mesmo?
+No HelloWorld2.html.
+Cacilda, mas o HelloWorld2.html é gerado pelo HelloWorld2.jade.
+Isso! Você já tem a resposta: coloque essa linha no HelloWorld2.jade, mas
+no formato Jade.
+Parece difícil mas não é. Consulte aí qualquer material de referênca em 
+Jade (eu recomendo o livro "Express Web Application Development", 
+escrito por Hage Yaapa) e veja que essa linha fica assim:
+
+	script(data-main='/public/js/boot', type='text/javascript', src='/public/js/libs/require.js')
+
+O arquivo HelloWorld2.jade completo fica assim então (e vamos renomeá-lo
+para HelloWorld3.jade:
+
+	!!! 5
+	html(lang="en")
+		head
+			title Social Network
+			script(data-main='/public/js/boot', type='text/javascript', src='/public/js/libs/require.js')
+			
+		body
+			div#content Hello, World!
+
+						Arquivo: HelloWorld3.jade
+
+Vá lá no diretório 'views' e execute:
+	jade HelloWorld3.jade
+
+Depois examine o arquivo gerado ('HelloWorld3.html') e confira se a tag
+do <script> está lá bonitinha.
+
+Como alteramos a versão do HelloWorld para número 3 (sim, o número
+depois do nome do arquivo é um tipo bem porco de controle de versão),
+vamos ajustar o app8.js para fazer referência e esse novo arquivo
+(e criamos o app9.js):
+
+	var express = require('express'); // carrega o módulo Express
+	var app = express(); // cria uma instância do express
+	app.set('view engine', 'jade'); // ajusta engine de renderização para jade
+	app.set('views', './views'); // local onde os arquivos .jade estão
+	app.listen(8080); // fica escutando na porta 8080
+	app.get('/', function(req, res) {
+		res.render('HelloWorld3.jade'); // responde qdo navegador pede diretório raiz
+	});
+	console.log('Servidor escutando em http://127.0.0.1:8080/');
+
+						Arquivo: app9.js
+
+
+
+
+Esse papo é meio teórico mas tem uma série de 2 vídeos no YouTube
+que explicam de uma forma muito didática esse mecanismo.
+Recomendo que você assista a esses vídeos:
+
+Parte 1: http://www.youtube.com/watch?v=M-wjQjsryMY
+Parte 2: http://www.youtube.com/watch?v=HwO_qwcJ4rs
 
 
