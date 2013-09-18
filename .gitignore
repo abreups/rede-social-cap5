@@ -7,3 +7,6 @@ node_modules/
 # ignore todos os arquivos que terminem em ~ (temp do vim)
 *.*~
 
+# ignore as bibliotecas publicas em public/js/libs
+public/js/libs
+
